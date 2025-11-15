@@ -40,3 +40,8 @@ For building and running the project you need:
 ```
 mvn compile
 ```
+
+## Test
+```
+mvn test
+```
