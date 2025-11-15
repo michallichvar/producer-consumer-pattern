@@ -1,4 +1,4 @@
-package sk.lichvar.pcp.model;
+package sk.lichvar.pcp.services;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

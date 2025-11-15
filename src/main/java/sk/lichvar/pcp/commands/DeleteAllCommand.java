@@ -1,22 +1,19 @@
 package sk.lichvar.pcp.commands;
 
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import sk.lichvar.pcp.hibernate.HibernateUtils;
-import sk.lichvar.pcp.model.User;
+import sk.lichvar.pcp.services.User;
+import sk.lichvar.pcp.services.UserService;
+import sk.lichvar.pcp.services.UserServiceImpl;
 
 /**
  * Represents command DeleteAll.
  * Removes all {@link User}s from database.
  */
-public class DeleteAllCommand extends Command {
+public class DeleteAllCommand implements Command {
+
+	private UserService userService = UserServiceImpl.getInstance();
 
 	@Override
 	public void execute() {
-		try (Session session = HibernateUtils.getSessionFactory().openSession()) {
-			Transaction tx = session.beginTransaction();
-			session.createQuery("DELETE FROM User u").executeUpdate();
-			tx.commit();
-		}
+		userService.deleteAll();
 	}
 }

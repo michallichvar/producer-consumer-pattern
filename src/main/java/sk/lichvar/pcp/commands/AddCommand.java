@@ -1,39 +1,29 @@
 package sk.lichvar.pcp.commands;
 
-import lombok.AllArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import sk.lichvar.pcp.hibernate.HibernateUtils;
-import sk.lichvar.pcp.model.User;
+import sk.lichvar.pcp.services.User;
+import sk.lichvar.pcp.services.UserService;
+import sk.lichvar.pcp.services.UserServiceImpl;
 
 /**
  * Represents command Add(id, guid, userName).
  * Adds {@link User} to database.
  */
-@AllArgsConstructor
-public class AddCommand extends Command {
+public class AddCommand implements Command {
+
+	private UserService userService = UserServiceImpl.getInstance();
 
 	private Integer id;
 	private String guid;
 	private String userName;
 
+	public AddCommand(Integer id, String guid, String userName) {
+		this.id = id;
+		this.guid = guid;
+		this.userName = userName;
+	}
+
 	@Override
 	public void execute() {
-		Transaction tx = null;
-		try (Session session = HibernateUtils.getSessionFactory().openSession()) {
-			tx = session.beginTransaction();
-			session.save(new User(id, guid, userName));
-			tx.commit();
-		} catch (Throwable t) {
-			System.err.println("Rollbacking because of " + t.getMessage());
-			t.printStackTrace();
-			if (tx != null) {
-				try {
-					tx.rollback();
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
-			}
-		}
+		userService.insert(new User(id, guid, userName));
 	}
 }
