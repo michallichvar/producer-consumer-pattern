@@ -1,21 +1,22 @@
 package sk.lichvar.pcp.queue;
 
 import sk.lichvar.pcp.commands.Command;
+import sk.lichvar.pcp.producer.Producer;
 
 import java.util.Collection;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * {@link BlockingQueue} queue where {@link sk.lichvar.pcp.pattern.Producer} put {@link Command}s
- * and {@link sk.lichvar.pcp.pattern.Consumer} polls them.
+ * {@link BlockingQueue} queue where {@link Producer} put {@link Command}s
+ * and {@link sk.lichvar.pcp.consumer.Consumer} polls them.
  */
 public class CommandQueue extends ArrayBlockingQueue<Command> {
 
 	/**
 	 * State of producer thread (true if producing)
 	 */
-	public boolean producerRunning = true;
+	public volatile boolean producerRunning = true;
 
 	public CommandQueue(int capacity) {
 		super(capacity);

@@ -1,23 +1,15 @@
 package sk.lichvar.pcp;
 
-import sk.lichvar.pcp.commands.AddCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sk.lichvar.pcp.commands.Command;
-import sk.lichvar.pcp.commands.DeleteAllCommand;
-import sk.lichvar.pcp.commands.PrintAllCommand;
-import sk.lichvar.pcp.pattern.Consumer;
-import sk.lichvar.pcp.pattern.Producer;
+import sk.lichvar.pcp.consumer.Consumer;
+import sk.lichvar.pcp.producer.Producer;
 import sk.lichvar.pcp.queue.CommandQueue;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 /**
- * Solves this assigned task:
  * <p>
- * Create program in Java language that will process commands from FIFO queue using Producer –
- * Consumer pattern.<br/>
+ * Demonstrates processing of commands from input file using Producer – Consumer pattern.<br/>
  * Supported commands are the following:
  * <ul>
  * <li><b>Add</b> - adds a user into a database</li>
@@ -26,8 +18,7 @@ import java.util.stream.Stream;
  * </ul>
  * </p>
  * <p>
- * User is defined as database table SUSERS with columns (USER_ID, USER_GUID, USER_NAME)
- * Demonstrate program on the following sequence (using main method or test):
+ * Program loads input resource file (input.cmd) containing following commands:
  * </p>
  * <pre>
  * Add (1, &quot;a1&quot;, &quot;Robert&quot;)
@@ -37,13 +28,18 @@ import java.util.stream.Stream;
  * PrintAll
  * </pre>
  * <p>
- * Show your ability to unit test code on at least one class.<br/>
- * Goal of this exercise is to show Java language and JDK know-how, OOP principles, clean code
- * understanding, concurrent programming knowledge, unit testing experience.<br/>
- * Please do not use Spring framework in this exercise. Embedded database is sufficient.
+ *     Program starts {@link Producer} and {@link Consumer} as separate threads.
+ *     Producer parses input resource file into {@link Command}s, that are send (offered) to {@link CommandQueue}.
+ *     Consumer polls {@link Command}s from {@link  CommandQueue} and executes them.
+ * </p>
+ * <p>
+ * Spring framework is not used. </br>
+ * Embedded database has a database table SUSERS with columns (USER_ID, USER_GUID, USER_NAME), representing Users.
  * </p>
  */
 public class App {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
 	private static CommandQueue queue;
 	private static Thread consumerThread;
@@ -52,19 +48,37 @@ public class App {
 	public static void main(String[] args) {
 		queue = new CommandQueue(50);
 
+		producerThread = new Thread(new Producer("/input.cmd", queue));
+		producerThread.start();
+
 		consumerThread = new Thread(new Consumer(queue));
 		consumerThread.start();
 
-		// non tread safe queue for input commands (as they are all processed in one thread)
-		Queue<Command> inputCommands = Stream.of(
-				new AddCommand(1, "a1", "Robert"),
-				new AddCommand(2, "a2", "Martin"),
-				new PrintAllCommand(),
-				new DeleteAllCommand(),
-				new PrintAllCommand()
-		).collect(Collectors.toCollection(LinkedList::new));
+		joinProducerThread();
+		joinConsumerThread();
+	}
 
-		producerThread = new Thread(new Producer(queue, inputCommands));
-		producerThread.start();
+	private static void joinProducerThread() {
+		try {
+			producerThread.join();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			LOGGER.warn("Main thread interrupted while waiting for producer thread to finish.");
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(e.getMessage(), e);
+			}
+		}
+	}
+
+	private static void joinConsumerThread() {
+		try {
+			consumerThread.join();
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			LOGGER.warn("Main thread interrupted while waiting for consumer thread to finish.");
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(e.getMessage(), e);
+			}
+		}
 	}
 }

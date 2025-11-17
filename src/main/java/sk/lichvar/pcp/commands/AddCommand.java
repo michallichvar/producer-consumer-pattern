@@ -1,5 +1,6 @@
 package sk.lichvar.pcp.commands;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import sk.lichvar.pcp.services.User;
 import sk.lichvar.pcp.services.UserService;
 import sk.lichvar.pcp.services.UserServiceImpl;
@@ -25,5 +26,14 @@ public class AddCommand implements Command {
 	@Override
 	public void execute() {
 		userService.insert(new User(id, guid, userName));
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this)
+				.append("id", id)
+				.append("guid", guid)
+				.append("userName", userName)
+				.toString();
 	}
 }

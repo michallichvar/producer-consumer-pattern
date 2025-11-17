@@ -1,6 +1,8 @@
-package sk.lichvar.pcp.pattern;
+package sk.lichvar.pcp.consumer;
 
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sk.lichvar.pcp.commands.Command;
 import sk.lichvar.pcp.queue.CommandQueue;
 
@@ -13,6 +15,8 @@ import java.util.concurrent.TimeUnit;
  */
 @AllArgsConstructor
 public class Consumer implements Runnable {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Consumer.class);
 
 	private final CommandQueue queue;
 
@@ -27,13 +31,13 @@ public class Consumer implements Runnable {
 						command.execute();
 					} catch (Throwable e) {
 						// when error during processing, log and continue to next command
-						System.err.println("Exception while processing command: " + e.getMessage());
-						e.printStackTrace();
+						LOGGER.error("Exception while processing command: " + command.toString(), e);
 					}
 				}
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			Thread.currentThread().interrupt();
+			LOGGER.warn("Consumer was interrupted when polling command.", e);
 		}
 		// tell producer to finish itself
 		queue.producerFinished();
