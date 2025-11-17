@@ -1,19 +1,19 @@
 # Producer-consumer pattern solution
 
-Solves this assigned task:
 <p>
-Create program in Java language that will process commands from FIFO queue using Producer –
-Consumer pattern.<br/>
+Demonstrates processing of commands from input file using Producer – Consumer pattern.<br/>
+</p>
+<p>
 Supported commands are the following:
 <ul>
 <li><b>Add</b> - adds a user into a database</li>
 <li><b>PrintAll</b> – prints all users into standard output</li>
 <li><b>DeleteAll</b> – deletes all users from database</li>
 </ul>
+</p>
 
 <p>
-User is defined as database table SUSERS with columns (USER_ID, USER_GUID, USER_NAME)
-Demonstrate program on the following sequence (using main method or test):
+Program loads input resource file (input.cmd) containing following commands:
 </p>
 <pre>
 Add (1, &quot;a1&quot;, &quot;Robert&quot;)
@@ -23,11 +23,14 @@ DeleteAll
 PrintAll
 </pre>
 <p>
-Show your ability to unit test code on at least one class.<br/>
-Goal of this exercise is to show Java language and JDK know-how, OOP principles, clean code
-understanding, concurrent programming knowledge, unit testing experience.<br/>
-Please do not use Spring framework in this exercise. Embedded database is sufficient.
-
+    Program starts Producer and Consumer as separate threads.
+    Producer parses input resource file into Commands, that are send (offered) to CommandQueue.
+    Consumer polls Commands from  CommandQueue and executes them.
+</p>
+<p>
+Spring framework is not used. </br>
+Embedded database has a database table SUSERS with columns (USER_ID, USER_GUID, USER_NAME), representing Users.
+</p>
 ## Requirements
 
 For building and running the project you need:
