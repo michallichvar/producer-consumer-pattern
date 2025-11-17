@@ -9,15 +9,21 @@ import sk.lichvar.pcp.queue.CommandQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Consume commands from queue and execute them.
- * Consuming is done by method {@link java.util.concurrent.BlockingQueue#poll} with 100ms timeout.
+ * A Runnable implementation that consumes and executes commands from a shared queue.
  *
+ * This class continuously polls the CommandQueue ({@link java.util.concurrent.BlockingQueue#poll})
+ * for available commands, executes them,
+ * and logs any exceptions that may occur during processing. Once all commands have been
+ * consumed or the producer has finished producing new commands, this thread will exit.
  */
 @AllArgsConstructor
 public class Consumer implements Runnable {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Consumer.class);
 
+	/**
+	 * The shared CommandQueue instance that this consumer will poll for commands to execute.
+	 */
 	private final CommandQueue queue;
 
 	@Override
